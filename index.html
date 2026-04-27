@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PayBridge Admin — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06060e;--s1:#0f0f1a;--s2:#171728;--s3:#1e1e30;
+  --border:#252538;--border2:#32324a;
+  --accent:#6366f1;--accent2:#8b5cf6;
+  --pink:#ec4899;--gold:#f59e0b;
+  --text:#e2e2f0;--muted:#6b6b8a;
+  --green:#10b981;--red:#ef4444;--yellow:#f59e0b;
+  --naya:#2563eb;--easy:#16a34a;--jazz:#dc2626;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:240px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:20;}
+.sb-logo{padding:24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sb-logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+.sb-logo-text{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
+.sb-logo-sub{font-size:9px;color:var(--muted);letter-spacing:2px;display:block;margin-top:1px;}
+
+.sb-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:12px;cursor:pointer;color:var(--muted);transition:all .2s;text-decoration:none;}
+.sb-item:hover,.sb-item.active{background:var(--s2);color:var(--text);}
+.sb-item.active{background:rgba(99,102,241,0.12);color:var(--accent);border:1px solid rgba(99,102,241,0.2);}
+.sb-icon{font-size:16px;width:20px;text-align:center;}
+
+.sb-section{font-size:9px;letter-spacing:2px;color:var(--muted);padding:12px 12px 4px;text-transform:uppercase;}
+
+.sb-status{padding:12px 20px;border-top:1px solid var(--border);}
+.status-live{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--green);}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+
+/* MAIN */
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;}
+
+/* TOPBAR */
+.topbar{padding:16px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(6,6,14,.8);backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;}
+.topbar-left h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
+.topbar-left p{font-size:11px;color:var(--muted);margin-top:2px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.refresh-btn{padding:8px 16px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.refresh-btn:hover{border-color:var(--accent);color:var(--accent);}
+.view-site-btn{padding:8px 16px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:8px;color:white;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:6px;}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--green);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:4px 10px;}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+
+/* CONTENT */
+.content{padding:28px 32px;flex:1;}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:border-color .2s;}
+.stat-card:hover{border-color:var(--border2);}
+.stat-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
+.stat-card:hover::before{opacity:1;}
+.stat-card.blue::before{background:radial-gradient(circle at top left,rgba(99,102,241,0.08),transparent 70%);}
+.stat-card.green::before{background:radial-gradient(circle at top left,rgba(16,185,129,0.08),transparent 70%);}
+.stat-card.gold::before{background:radial-gradient(circle at top left,rgba(245,158,11,0.08),transparent 70%);}
+.stat-card.pink::before{background:radial-gradient(circle at top left,rgba(236,72,153,0.08),transparent 70%);}
+.stat-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.stat-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:4px;}
+.stat-val.blue{color:#818cf8;}
+.stat-val.green{color:var(--green);}
+.stat-val.gold{color:var(--gold);}
+.stat-val.pink{color:var(--pink);}
+.stat-change{font-size:10px;color:var(--green);}
+.stat-icon{position:absolute;top:20px;right:20px;font-size:28px;opacity:.15;}
+
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:28px;}
+
+.panel{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.panel-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.panel-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.panel-badge{font-size:10px;padding:3px 9px;border-radius:6px;background:rgba(99,102,241,0.1);color:var(--accent);border:1px solid rgba(99,102,241,0.2);}
+
+/* bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:3px;height:120px;padding-top:10px;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bar{width:100%;border-radius:4px 4px 0 0;background:rgba(99,102,241,0.3);transition:all .3s;cursor:pointer;min-height:4px;}
+.bar:hover{background:var(--accent);}
+.bar-label{font-size:8px;color:var(--muted);writing-mode:vertical-rl;transform:rotate(180deg);height:28px;display:flex;align-items:center;}
+
+/* METHOD BREAKDOWN */
+.method-breakdown{display:flex;flex-direction:column;gap:12px;}
+.mb-item{display:flex;flex-direction:column;gap:6px;}
+.mb-top{display:flex;justify-content:space-between;align-items:center;}
+.mb-name{display:flex;align-items:center;gap:8px;font-size:12px;}
+.mb-dot{width:8px;height:8px;border-radius:50%;}
+.mb-pct{font-size:11px;font-family:'Syne',sans-serif;font-weight:700;}
+.mb-bar-track{height:6px;background:var(--s2);border-radius:10px;overflow:hidden;}
+.mb-bar-fill{height:100%;border-radius:10px;transition:width .6s ease;}
+.mb-vol{font-size:10px;color:var(--muted);}
+
+/* TRANSACTIONS TABLE */
+.table-wrap{background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.table-head-bar{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+.table-filters{display:flex;gap:6px;}
+.filter-btn{padding:5px 12px;border-radius:6px;font-size:10px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;transition:all .2s;}
+.filter-btn.active,.filter-btn:hover{background:rgba(99,102,241,0.1);color:var(--accent);border-color:rgba(99,102,241,0.3);}
+
+table{width:100%;border-collapse:collapse;}
+thead th{padding:12px 22px;text-align:left;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;background:var(--s2);font-weight:400;}
+tbody tr{border-top:1px solid var(--border);transition:background .15s;}
+tbody tr:hover{background:var(--s2);}
+tbody td{padding:14px 22px;font-size:12px;}
+.tx-id-cell{font-family:'DM Mono',monospace;color:var(--accent);font-size:11px;}
+.method-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-size:10px;}
+.method-chip.naya{background:rgba(37,99,235,0.12);color:#60a5fa;border:1px solid rgba(37,99,235,0.2);}
+.method-chip.easy{background:rgba(22,163,74,0.12);color:#4ade80;border:1px solid rgba(22,163,74,0.2);}
+.method-chip.jazz{background:rgba(220,38,38,0.12);color:#f87171;border:1px solid rgba(220,38,38,0.2);}
+.status-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-size:10px;}
+.status-chip.completed{background:rgba(16,185,129,0.1);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+.status-chip.pending{background:rgba(245,158,11,0.1);color:var(--yellow);border:1px solid rgba(245,158,11,0.2);}
+.status-chip.failed{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
+.amount-cell{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;}
+.time-cell{color:var(--muted);font-size:10px;}
+
+/* ANIMATIONS */
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.4)}50%{box-shadow:0 0 0 6px rgba(16,185,129,0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes countUp{from{opacity:0}to{opacity:1}}
+.stat-card{animation:slideUp .4s ease both;}
+.stat-card:nth-child(1){animation-delay:.05s}
+.stat-card:nth-child(2){animation-delay:.1s}
+.stat-card:nth-child(3){animation-delay:.15s}
+.stat-card:nth-child(4){animation-delay:.2s}
+.panel{animation:slideUp .4s .2s ease both;opacity:0;animation-fill-mode:forwards;}
+.table-wrap{animation:slideUp .4s .3s ease both;opacity:0;animation-fill-mode:forwards;}
+
+/* TOOLTIP */
+.bar-tooltip{position:absolute;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:10px;pointer-events:none;z-index:50;display:none;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-dot"></div>
+    <div>
+      <div class="sb-logo-text">PayBridge</div>
+      <span class="sb-logo-sub">ADMIN PANEL</span>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Main</div>
+    <a class="sb-item active" href="#">
+      <span class="sb-icon">⬛</span> Dashboard
+    </a>
+    <a class="sb-item" href="#">
+      <span class="sb-icon">↔</span> Transactions
+    </a>
+    <a class="sb-item" href="#">
+      <span class="sb-icon">🔗</span> Webhooks
+    </a>
+    <div class="sb-section">Analytics</div>
+    <a class="sb-item" href="#">
+      <span class="sb-icon">📊</span> Reports
+    </a>
+    <a class="sb-item" href="#">
+      <span class="sb-icon">📈</span> Volume
+    </a>
+    <div class="sb-section">System</div>
+    <a class="sb-item" href="#">
+      <span class="sb-icon">⚙</span> Settings
+    </a>
+    <a class="sb-item" href="/">
+      <span class="sb-icon">↗</span> View Site
+    </a>
+  </nav>
+  <div class="sb-status">
+    <div class="status-live"><div class="status-dot"></div>All systems live</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2>Dashboard Overview</h2>
+      <p id="lastUpdated">Loading stats...</p>
+    </div>
+    <div class="topbar-right">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      <button class="refresh-btn" onclick="loadStats()">↻ Refresh</button>
+      <a href="/" class="view-site-btn">↗ Payment Page</a>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon">↔</div>
+        <div class="stat-label">Total Transactions</div>
+        <div class="stat-val blue" id="sTotalTx">—</div>
+        <div class="stat-change" id="sTodayTx">loading...</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">₨</div>
+        <div class="stat-label">Total Volume (PKR)</div>
+        <div class="stat-val green" id="sTotalVol">—</div>
+        <div class="stat-change" id="sTodayVol">loading...</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-icon">%</div>
+        <div class="stat-label">Success Rate</div>
+        <div class="stat-val gold" id="sSuccessRate">—</div>
+        <div class="stat-change">↑ vs last week</div>
+      </div>
+      <div class="stat-card pink">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-label">Pending</div>
+        <div class="stat-val pink" id="sPending">—</div>
+        <div class="stat-change" style="color:var(--yellow);">Awaiting webhook</div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-row">
+      <!-- Hourly Volume Bar Chart -->
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Hourly Transaction Volume</div>
+            <div class="panel-sub">Today · PKR</div>
+          </div>
+          <div class="panel-badge">24h</div>
+        </div>
+        <div class="bar-chart" id="barChart">
+          <div style="color:var(--muted);font-size:12px;margin:auto;">Loading chart...</div>
+        </div>
+      </div>
+
+      <!-- Method Breakdown -->
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Payment Methods</div>
+            <div class="panel-sub">Volume breakdown</div>
+          </div>
+        </div>
+        <div class="method-breakdown" id="methodBreakdown">
+          <div style="color:var(--muted);font-size:12px;">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS TABLE -->
+    <div class="table-wrap">
+      <div class="table-head-bar">
+        <div>
+          <div class="panel-title">Recent Transactions</div>
+          <div class="panel-sub" style="margin-top:3px;">Live feed · auto-refreshes every 30s</div>
+        </div>
+        <div class="table-filters">
+          <button class="filter-btn active" onclick="filterTable('all',this)">All</button>
+          <button class="filter-btn" onclick="filterTable('completed',this)">Completed</button>
+          <button class="filter-btn" onclick="filterTable('pending',this)">Pending</button>
+          <button class="filter-btn" onclick="filterTable('failed',this)">Failed</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="txTableBody">
+          <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:32px;">Loading transactions...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let allTransactions = [];
+let activeFilter = 'all';
+
+async function loadStats(){
+  document.getElementById('lastUpdated').textContent = 'Updating...';
+  try {
+    const res = await fetch('/api/stats');
+    const data = await res.json();
+    if(!data.success) throw new Error();
+    const s = data.stats;
+
+    // Stats cards
+    document.getElementById('sTotalTx').textContent = s.totalTransactions.toLocaleString();
+    document.getElementById('sTotalVol').textContent = 'Rs '+s.totalVolumePKR.toLocaleString('en-PK');
+    document.getElementById('sSuccessRate').textContent = s.successRate+'%';
+    document.getElementById('sPending').textContent = s.pendingCount;
+    document.getElementById('sTodayTx').textContent = '↑ '+s.todayTransactions+' today';
+    document.getElementById('sTodayVol').textContent = '↑ Rs '+s.todayVolume.toLocaleString('en-PK')+' today';
+
+    // Bar chart
+    renderBarChart(s.hourlyVolume);
+
+    // Method breakdown
+    renderMethodBreakdown(s.methodBreakdown);
+
+    // Transactions
+    allTransactions = s.recentTransactions;
+    renderTable(activeFilter);
+
+    document.getElementById('lastUpdated').textContent = 'Last updated: '+new Date().toLocaleTimeString();
+  } catch(e) {
+    // Fallback: demo data directly
+    loadDemoData();
+  }
+}
+
+function loadDemoData(){
+  const now = new Date();
+  document.getElementById('sTotalTx').textContent = '247';
+  document.getElementById('sTotalVol').textContent = 'Rs 18,42,500';
+  document.getElementById('sSuccessRate').textContent = '94.3%';
+  document.getElementById('sPending').textContent = '12';
+  document.getElementById('sTodayTx').textContent = '↑ 31 today';
+  document.getElementById('sTodayVol').textContent = '↑ Rs 2,34,500 today';
+
+  const hourly = Array.from({length:24},(_,i)=>({
+    hour:`${i.toString().padStart(2,'0')}:00`,
+    volume: Math.floor(Math.sin((i-6)*Math.PI/12)*20000+25000+Math.random()*8000),
+    count: Math.floor(Math.random()*12+2)
+  }));
+  renderBarChart(hourly);
+
+  renderMethodBreakdown({
+    nayapay:   {count:98, volume:742000, percent:39.7},
+    easypaisa: {count:86, volume:645000, percent:34.8},
+    jazzcash:  {count:63, volume:455500, percent:25.5},
+  });
+
+  allTransactions = [
+    {id:'TX-K9MNP2QR',amount:5000, method:'nayapay',  status:'completed',createdAt:new Date(now-2*60000).toISOString()},
+    {id:'TX-A3F9K2M1',amount:1500, method:'easypaisa',status:'completed',createdAt:new Date(now-5*60000).toISOString()},
+    {id:'TX-BX72LQWM',amount:750,  method:'jazzcash', status:'pending',  createdAt:new Date(now-8*60000).toISOString()},
+    {id:'TX-R4TY9JKL',amount:12000,method:'nayapay',  status:'completed',createdAt:new Date(now-15*60000).toISOString()},
+    {id:'TX-WQZX8NVP',amount:3000, method:'easypaisa',status:'failed',   createdAt:new Date(now-22*60000).toISOString()},
+    {id:'TX-H6CKQT3S',amount:2200, method:'jazzcash', status:'completed',createdAt:new Date(now-31*60000).toISOString()},
+    {id:'TX-MP4LNX9Y',amount:800,  method:'nayapay',  status:'completed',createdAt:new Date(now-44*60000).toISOString()},
+    {id:'TX-DG7RVWBK',amount:9500, method:'easypaisa',status:'completed',createdAt:new Date(now-58*60000).toISOString()},
+  ];
+  renderTable(activeFilter);
+  document.getElementById('lastUpdated').textContent = 'Last updated: '+new Date().toLocaleTimeString()+' (demo data)';
+}
+
+function renderBarChart(data){
+  const chart = document.getElementById('barChart');
+  const maxVol = Math.max(...data.map(d=>d.volume));
+  const currentHour = new Date().getHours();
+
+  chart.innerHTML = data.map(d=>{
+    const h = parseInt(d.hour);
+    const heightPct = Math.max(4, (d.volume/maxVol)*100);
+    const isNow = h === currentHour;
+    return `<div class="bar-col" title="Rs ${d.volume.toLocaleString()} · ${d.count} txn">
+      <div class="bar" style="height:${heightPct}%;background:${isNow?'var(--accent)':'rgba(99,102,241,0.3)'};"></div>
+      <div class="bar-label">${h%4===0?d.hour.split(':')[0]:''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderMethodBreakdown(mb){
+  const colors = {nayapay:'#3b82f6',easypaisa:'#22c55e',jazzcash:'#ef4444'};
+  const icons = {nayapay:'💙',easypaisa:'💚',jazzcash:'❤️'};
+  const names = {nayapay:'NayaPay',easypaisa:'Easypaisa',jazzcash:'JazzCash'};
+
+  document.getElementById('methodBreakdown').innerHTML = Object.entries(mb).map(([k,v])=>`
+    <div class="mb-item">
+      <div class="mb-top">
+        <div class="mb-name">
+          <div class="mb-dot" style="background:${colors[k]}"></div>
+          <span>${icons[k]} ${names[k]}</span>
+        </div>
+        <div>
+          <span class="mb-pct" style="color:${colors[k]}">${v.percent}%</span>
+        </div>
+      </div>
+      <div class="mb-bar-track">
+        <div class="mb-bar-fill" style="width:${v.percent}%;background:${colors[k]}"></div>
+      </div>
+      <div class="mb-vol">Rs ${v.volume.toLocaleString('en-PK')} · ${v.count} transactions</div>
+    </div>
+  `).join('');
+}
+
+function renderTable(filter){
+  const filtered = filter==='all' ? allTransactions : allTransactions.filter(t=>t.status===filter);
+  const tbody = document.getElementById('txTableBody');
+
+  if(!filtered.length){
+    tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:32px;">No ${filter} transactions</td></tr>`;
+    return;
+  }
+
+  const methodEmojis = {nayapay:'💙',easypaisa:'💚',jazzcash:'❤️'};
+  const methodNames = {nayapay:'NayaPay',easypaisa:'Easypaisa',jazzcash:'JazzCash'};
+
+  tbody.innerHTML = filtered.map(tx=>{
+    const ago = timeAgo(tx.createdAt);
+    return `<tr>
+      <td class="tx-id-cell">${tx.id}</td>
+      <td class="amount-cell">Rs ${Number(tx.amount).toLocaleString('en-PK')}</td>
+      <td><span class="method-chip ${tx.method.replace('easypaisa','easy').replace('jazzcash','jazz').replace('nayapay','naya')}">${methodEmojis[tx.method]} ${methodNames[tx.method]}</span></td>
+      <td><span class="status-chip ${tx.status}">● ${tx.status}</span></td>
+      <td class="time-cell">${ago}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTable(filter, btn){
+  activeFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable(filter);
+}
+
+function timeAgo(iso){
+  const diff = (Date.now()-new Date(iso).getTime())/1000;
+  if(diff<60) return Math.floor(diff)+'s ago';
+  if(diff<3600) return Math.floor(diff/60)+'m ago';
+  return Math.floor(diff/3600)+'h ago';
+}
+
+// Init
+loadStats();
+setInterval(loadStats, 30000);
+</script>
+</body>
+</html>

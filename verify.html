@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Verify Payment</title>
+  <style>
+    body {
+      background:#0a0a0f;
+      color:#fff;
+      font-family:sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      text-align:center;
+    }
+    .box {
+      background:#1c1c28;
+      padding:30px;
+      border-radius:16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2 id="status">Checking...</h2>
+  <p id="details"></p>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const txId = params.get('tx');
+
+fetch('/api/verify?txId=' + txId)
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('status').textContent = data.message;
+
+    if (data.transaction) {
+      document.getElementById('details').textContent =
+        `Amount: PKR ${data.transaction.amount}`;
+    }
+  });
+</script>
+
+</body>
+</html>
